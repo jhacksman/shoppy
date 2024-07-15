@@ -1,9 +1,4 @@
-<<<<<<< HEAD
 import time, socket, odrive
-=======
-import time
-import threading
->>>>>>> 6a686c71a77fc490ceb7c3ca020a0658a0636992
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, disconnect
 from flask_cors import CORS
@@ -23,8 +18,6 @@ cors_origins = ["http://localhost:3000", f"http://{socket.gethostname()}.local:3
 
 CORS(app, resources={r"/*": {"origins": cors_origins }})
 socketio = SocketIO(app, cors_allowed_origins=cors_origins)
-
-odrive_uart = ODriveUART()
 
 last_command_time = time.time()
 safety_timer = None
@@ -105,10 +98,10 @@ def check_inactivity():
         socketio.sleep(0.1)  # Check every 100ms
 
 if __name__ == '__main__':
-    socketio.start_background_task(check_inactivity)
-    socketio.run(app, debug=True, host='0.0.0.0')
+    socketio.run(app, host='0.0.0.0')
 
 # Temporary crappy stop-if-error case handler
 def power_cut():
+    global motor_controller
     motor_controller.axis0.controller.input_vel = 0
     motor_controller.axis0.controller.input_vel = 0
