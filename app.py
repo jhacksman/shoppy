@@ -92,6 +92,9 @@ def handle_control_command(message):
                 case 'both':
                     motor_controller.axis0.controller.input_vel = val
                     motor_controller.axis1.controller.input_vel = val
+                case 'reset':
+                    motor_controller.axis0.controller.input_vel = 0
+                    motor_controller.axis1.controller.input_vel = 0
 
         current_power = message.get('power', current_power)
         emit('control_response', {'status': 'received', 'power': current_power})
