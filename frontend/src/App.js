@@ -114,7 +114,6 @@ function App() {
   const handleGamepadDisconnect = (event) => {
     setIsGamepadConnected(false);
     handleStop();
-    handleControlInputChange();
     console.log('Gamepad disconnected:', event.gamepad);
   };
 
@@ -150,7 +149,8 @@ function App() {
       console.log('New power values:', { left: newLeftMotorPower, right: newRightMotorPower });
       setLeftMotorPower(newLeftMotorPower);
       setRightMotorPower(newRightMotorPower);
-      handleControlInputChange();
+      handleControlInputChange(newLeftMotorPower,"left");
+      handleControlInputChange(newRightMotorPower,"right");
       setControlMethod('keyboard');
     };
 
@@ -179,7 +179,8 @@ function App() {
           if (newLeftMotorPower !== leftMotorPower || newRightMotorPower !== rightMotorPower) {
             setLeftMotorPower(newLeftMotorPower);
             setRightMotorPower(newRightMotorPower);
-            handleControlInputChange();
+            handleControlInputChange(newLeftMotorPower,"left");
+            handleControlInputChange(newRightMotorPower,"right");
             setControlMethod('gamepad');
             // Remove direct call to sendControlMessage here
           }
