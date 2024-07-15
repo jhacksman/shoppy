@@ -84,13 +84,13 @@ def handle_control_command(message):
         print('Received control command:', message)
         # Implement actual motor control logic here
         if message.get('motor') and message.get('value'):
+            val = float(message.get('value'))
             match message.get('motor'):
                 case 'right':
-                    motor_controller.axis0.controller.input_vel = float(message.get('value'))
+                    motor_controller.axis0.controller.input_vel = val
                 case 'left':
-                    motor_controller.axis1.controller.input_vel = float(message.get('value'))
+                    motor_controller.axis1.controller.input_vel = val
                 case 'both':
-                    val = float(message.get('value'))
                     motor_controller.axis0.controller.input_vel = val
                     motor_controller.axis1.controller.input_vel = val
 
