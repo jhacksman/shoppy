@@ -2,6 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ChakraProvider, Box, VStack, HStack, Text, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Button, useColorModeValue, Alert, AlertIcon } from '@chakra-ui/react';
 import { io } from 'socket.io-client';
 
+const DEAD_ZONE = 0.1;
+
 const socket = io('http://127.0.0.1:5000', {
   transports: ['websocket'],
   cors: {
