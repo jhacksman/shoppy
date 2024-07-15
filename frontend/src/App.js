@@ -70,6 +70,16 @@ function App() {
     };
   }, []);
 
+  useEffect(() => {
+    let timer;
+    if (!isConnected) {
+      timer = setTimeout(() => {
+        setIsConnected(false);
+      }, 1000);
+    }
+    return () => clearTimeout(timer);
+  }, [isConnected]);
+
   const handleControlInputChange = useCallback((value, motor) => {
     if (isConnected) {
       if (motor === 'left') {
@@ -201,8 +211,17 @@ function App() {
       <Box minH="100vh" bg={bgColor} color={textColor} p={[4, 6, 8]}>
         <VStack spacing={8} align="stretch">
           <Text fontSize={["3xl", "4xl", "5xl"]} fontWeight="bold" textAlign="center">Shoppy Control Interface</Text>
-          <Box>
+          <Box position="relative">
             <Text fontSize="lg" mb={2}>Connection Status: {isConnected ? 'Connected' : 'Disconnected'}</Text>
+            <Button
+              position="absolute"
+              top="0"
+              right="0"
+              size="sm"
+              colorScheme={isConnected ? "green" : "red"}
+            >
+              {isConnected ? "Connected" : "Disconnected"}
+            </Button>
             {gradualStop && (
               <Alert status="warning" mb={4}>
                 <AlertIcon />

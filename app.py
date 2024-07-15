@@ -5,21 +5,24 @@ from flask_cors import CORS
 from uart_communication import ODriveUART
 
 motor_controller = None
+last_heartbeat = time.time()
 
-try:
-    motor_controller = odrive.find_any()
-    motor_controller.clear_errors()
-    motor_controller.axis0.controller.input_vel = 0
-    motor_controller.axis1.controller.input_vel = 0
-except Exception as e:
-    print(f"Could not find the motor driver!\n\t{e}")
-    exit(-1)
+# Comment out ODrive initialization for testing purposes
+# try:
+#     motor_controller = odrive.find_any()
+#     motor_controller.clear_errors()
+#     motor_controller.axis0.controller.input_vel = 0
+#     motor_controller.axis1.controller.input_vel = 0
+# except Exception as e:
+#     print(f"Could not find the motor driver!\n\t{e}")
+#     exit(-1)
 
 # Temporary crappy stop-if-error case handler
 def power_cut():
     global motor_controller
-    motor_controller.axis0.controller.input_vel = 0
-    motor_controller.axis1.controller.input_vel = 0
+    if motor_controller:
+        motor_controller.axis0.controller.input_vel = 0
+        motor_controller.axis1.controller.input_vel = 0
 
 app = Flask(__name__)
 
@@ -28,19 +31,10 @@ cors_origins = ["http://localhost:3000", f"http://{socket.gethostname()}.local:3
 CORS(app, resources={r"/*": {"origins": cors_origins }})
 socketio = SocketIO(app, cors_allowed_origins=cors_origins)
 
-last_command_time = time.time()
-safety_timer_cutoff = time.monotonic()
 SAFETY_TIMEOUT = 1.0  # 1 second timeout
 current_power = 1.0  # Assuming full power is 1.0
 DECELERATION_RATE = 0.1  # Reduce power by 10% each step
 DECELERATION_INTERVAL = 0.1  # Decelerate every 100ms
-
-def start_safety_timer_cutoff():
-    global safety_timer_cutoff
-    now = time.monotonic()
-    if safety_timer_cutoff - SAFETY_TIMEOUT < now:
-        safety_timer_cutoff = now + SAFETY_TIMEOUT
-        
 
 def initiate_gradual_stop():
     print("No command received. Initiating gradual stop.")
@@ -50,8 +44,9 @@ def gradual_stop():
     global current_power, motor_controller
     while current_power > 0:
         current_power = max(0, current_power - DECELERATION_RATE)
-        motor_controller.axis0.controller.input_vel = -current_power
-        motor_controller.axis1.controller.input_vel = current_power
+        if motor_controller:
+            motor_controller.axis0.controller.input_vel = -current_power
+            motor_controller.axis1.controller.input_vel = current_power
         print(f"Reducing power to {current_power}")
         socketio.sleep(DECELERATION_INTERVAL)
     print("Gradual stop completed")
@@ -78,13 +73,22 @@ def handle_disconnect():
     except Exception as e:
         print(f"Error handling disconnection: {str(e)}")
 
+@socketio.on('heartbeat')
+def handle_heartbeat():
+    global last_heartbeat
+    last_heartbeat = time.time()
+
 @socketio.on('control_command')
 def handle_control_command(message):
-    global current_power, motor_controller
+    global last_heartbeat, current_power, motor_controller
+    if time.time() - last_heartbeat > SAFETY_TIMEOUT:
+        initiate_gradual_stop()
+        disconnect()
+        return
     try:
         print('Received control command:', message)
         # Implement actual motor control logic here
-        if message.get('motor') != None:
+        if message.get('motor') != None and motor_controller:
             val = float(message.get('value', 0))
             if abs(val) < 0.1:
                 val = 0
@@ -107,16 +111,13 @@ def handle_control_command(message):
         print(f"Error handling control command: {str(e)}")
         emit('error', {'message': 'Error processing command'})
 
-def check_inactivity():
-    global last_command_time
+def check_connection():
+    global last_heartbeat
     while True:
-        if time.time() - last_command_time > SAFETY_TIMEOUT:  # 1 second threshold
-            print("No command received for 1 second. Initiating gradual stop.")
-            # TODO: Implement gradual stop logic here
-            emit('gradual_stop', broadcast=True)
+        if time.time() - last_heartbeat > SAFETY_TIMEOUT:
+            initiate_gradual_stop()
         socketio.sleep(0.1)  # Check every 100ms
 
 if __name__ == '__main__':
+    socketio.start_background_task(check_connection)
     socketio.run(app, host='0.0.0.0')
-
-
