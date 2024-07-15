@@ -76,8 +76,17 @@ function App() {
       timer = setTimeout(() => {
         setIsConnected(false);
       }, 1000);
+    } else {
+      setIsConnected(true);
+      if (timer) {
+        clearTimeout(timer);
+      }
     }
-    return () => clearTimeout(timer);
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
   }, [isConnected]);
 
   const handleControlInputChange = useCallback((value, motor) => {
