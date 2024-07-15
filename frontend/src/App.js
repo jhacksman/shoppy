@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ChakraProvider, Box, VStack, HStack, Text, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Button, useColorModeValue, Alert, AlertIcon } from '@chakra-ui/react';
 import { io } from 'socket.io-client';
 
-const socket = io('http://127.0.0.1:5000', {
+const socket = io('http://shoppy.local:5000', {
   transports: ['websocket'],
   cors: {
-    origin: 'http://localhost:3000',
+    origin: 'http://shoppy.local:3000',
     methods: ["GET", "POST"]
   },
   reconnectionAttempts: 5,
