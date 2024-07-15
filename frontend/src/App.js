@@ -150,6 +150,7 @@ function App() {
       console.log('New power values:', { left: newLeftMotorPower, right: newRightMotorPower });
       setLeftMotorPower(newLeftMotorPower);
       setRightMotorPower(newRightMotorPower);
+      handleControlInputChange();
       setControlMethod('keyboard');
     };
 
@@ -178,6 +179,7 @@ function App() {
           if (newLeftMotorPower !== leftMotorPower || newRightMotorPower !== rightMotorPower) {
             setLeftMotorPower(newLeftMotorPower);
             setRightMotorPower(newRightMotorPower);
+            handleControlInputChange();
             setControlMethod('gamepad');
             // Remove direct call to sendControlMessage here
           }
