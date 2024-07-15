@@ -7,20 +7,22 @@ from uart_communication import ODriveUART
 motor_controller = None
 last_heartbeat = time.time()
 
-try:
-    motor_controller = odrive.find_any()
-    motor_controller.clear_errors()
-    motor_controller.axis0.controller.input_vel = 0
-    motor_controller.axis1.controller.input_vel = 0
-except Exception as e:
-    print(f"Could not find the motor driver!\n\t{e}")
-    exit(-1)
+# Comment out ODrive initialization for testing purposes
+# try:
+#     motor_controller = odrive.find_any()
+#     motor_controller.clear_errors()
+#     motor_controller.axis0.controller.input_vel = 0
+#     motor_controller.axis1.controller.input_vel = 0
+# except Exception as e:
+#     print(f"Could not find the motor driver!\n\t{e}")
+#     exit(-1)
 
 # Temporary crappy stop-if-error case handler
 def power_cut():
     global motor_controller
-    motor_controller.axis0.controller.input_vel = 0
-    motor_controller.axis1.controller.input_vel = 0
+    if motor_controller:
+        motor_controller.axis0.controller.input_vel = 0
+        motor_controller.axis1.controller.input_vel = 0
 
 app = Flask(__name__)
 
@@ -42,8 +44,9 @@ def gradual_stop():
     global current_power, motor_controller
     while current_power > 0:
         current_power = max(0, current_power - DECELERATION_RATE)
-        motor_controller.axis0.controller.input_vel = -current_power
-        motor_controller.axis1.controller.input_vel = current_power
+        if motor_controller:
+            motor_controller.axis0.controller.input_vel = -current_power
+            motor_controller.axis1.controller.input_vel = current_power
         print(f"Reducing power to {current_power}")
         socketio.sleep(DECELERATION_INTERVAL)
     print("Gradual stop completed")
@@ -85,7 +88,7 @@ def handle_control_command(message):
     try:
         print('Received control command:', message)
         # Implement actual motor control logic here
-        if message.get('motor') != None:
+        if message.get('motor') != None and motor_controller:
             val = float(message.get('value', 0))
             if abs(val) < 0.1:
                 val = 0
