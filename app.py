@@ -50,7 +50,7 @@ def gradual_stop():
     global current_power, motor_controller
     while current_power > 0:
         current_power = max(0, current_power - DECELERATION_RATE)
-        motor_controller.axis0.controller.input_vel = current_power
+        motor_controller.axis0.controller.input_vel = -current_power
         motor_controller.axis1.controller.input_vel = current_power
         print(f"Reducing power to {current_power}")
         socketio.sleep(DECELERATION_INTERVAL)
@@ -88,15 +88,14 @@ def handle_control_command(message):
             val = float(message.get('value', 0))
             if abs(val) < 0.1:
                 val = 0
-            print(val)
             match message.get('motor', 'reset'):
                 case 'right':
                     motor_controller.axis0.controller.input_vel = val
                 case 'left':
-                    motor_controller.axis1.controller.input_vel = val
+                    motor_controller.axis1.controller.input_vel = -val
                 case 'both':
                     motor_controller.axis0.controller.input_vel = val
-                    motor_controller.axis1.controller.input_vel = val
+                    motor_controller.axis1.controller.input_vel = -val
                 case 'reset':
                     motor_controller.axis0.controller.input_vel = 0
                     motor_controller.axis1.controller.input_vel = 0
