@@ -12,6 +12,12 @@ except Exception as e:
     print(f"Could not find the motor driver!\n\t{e}")
     exit(-1)
 
+# Temporary crappy stop-if-error case handler
+def power_cut():
+    global motor_controller
+    motor_controller.axis0.controller.input_vel = 0
+    motor_controller.axis0.controller.input_vel = 0
+
 app = Flask(__name__)
 
 cors_origins = ["http://localhost:3000", f"http://{socket.gethostname()}.local:3000" ]
@@ -99,8 +105,4 @@ def check_inactivity():
 if __name__ == '__main__':
     socketio.run(app, host='0.0.0.0')
 
-# Temporary crappy stop-if-error case handler
-def power_cut():
-    global motor_controller
-    motor_controller.axis0.controller.input_vel = 0
-    motor_controller.axis0.controller.input_vel = 0
+
