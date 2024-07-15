@@ -1,4 +1,4 @@
-import time, socket, odrive
+import time, socket, odrive, threading
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, disconnect
 from flask_cors import CORS
@@ -44,10 +44,11 @@ def initiate_gradual_stop():
     socketio.start_background_task(gradual_stop)
 
 def gradual_stop():
-    global current_power
+    global current_power, motor_controller
     while current_power > 0:
         current_power = max(0, current_power - DECELERATION_RATE)
-        odrive_uart.set_motor_power(current_power)
+        motor_controller.axis0.controller.input_vel = current_power
+        motor_controller.axis1.controller.input_vel = current_power
         print(f"Reducing power to {current_power}")
         socketio.sleep(DECELERATION_INTERVAL)
     print("Gradual stop completed")
@@ -80,12 +81,22 @@ def handle_disconnect():
 
 @socketio.on('control_command')
 def handle_control_command(message):
-    global current_power
+    global current_power, motor_controller
     try:
         print('Received control command:', message)
         # Implement actual motor control logic here
+        if message.get("motor") and message.get("value"):
+            match message.get("motor"):
+                case "right":
+                    motor_controller.axis0.controller.input_vel = float(message.get("value"))
+                case "left":
+                    motor_controller.axis1.controller.input_vel = float(message.get("value"))
+                case "both":
+                    motor_controller.axis0.controller.input_vel = float(message.get("value"))
+                    motor_controller.axis1.controller.input_vel = float(message.get("value"))
+
         current_power = message.get('power', current_power)
-        odrive_uart.set_motor_power(current_power)
+        start_safety_timer()
         emit('control_response', {'status': 'received', 'power': current_power})
     except Exception as e:
         power_cut()

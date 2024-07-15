@@ -2,10 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ChakraProvider, Box, VStack, HStack, Text, Slider, SliderTrack, SliderFilledTrack, SliderThumb, Button, useColorModeValue, Alert, AlertIcon } from '@chakra-ui/react';
 import { io } from 'socket.io-client';
 
-const socket = io('http://shoppy.local:5000', {
+const socket = io('http://127.0.0.1:5000', {
   transports: ['websocket'],
   cors: {
-    origin: 'http://shoppy.local:3000',
+    origin: 'http://localhost:3000',
     methods: ["GET", "POST"]
   },
   reconnectionAttempts: 5,
@@ -17,6 +17,8 @@ function App() {
   const [rightMotorPower, setRightMotorPower] = useState(0);
   const [isConnected, setIsConnected] = useState(false);
   const [gradualStop, setGradualStop] = useState(false);
+  const [isGamepadConnected, setIsGamepadConnected] = useState(false);
+  const [controlMethod, setControlMethod] = useState('sliders');
 
   const bgColor = useColorModeValue("gray.100", "gray.700");
   const textColor = useColorModeValue("gray.800", "white");
@@ -100,6 +102,66 @@ function App() {
     socket.emit('control_command', { motor: 'reset', value: 0 });
   };
 
+
+  const handleGamepadConnect = (event) => {
+    setIsGamepadConnected(true);
+    setControlMethod('gamepad');
+    console.log('Gamepad connected:', event.gamepad);
+  };
+
+  const handleGamepadDisconnect = (event) => {
+    setIsGamepadConnected(false);
+    handleStop();
+    handleControlInputChange();
+    console.log('Gamepad disconnected:', event.gamepad);
+  };
+
+  const applyDeadZone = (value) => {
+    return Math.abs(value) < DEAD_ZONE ? 0 : value;
+  };
+
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      console.log('Key pressed:', event.key);
+      let newLeftMotorPower = leftMotorPower;
+      let newRightMotorPower = rightMotorPower;
+      switch(event.key.toLowerCase()) {
+        case 'f':
+          newLeftMotorPower = Math.min(leftMotorPower + 0.1, 1);
+          console.log('Increasing left power');
+          break;
+        case 'v':
+          newLeftMotorPower = Math.max(leftMotorPower - 0.1, -1);
+          console.log('Decreasing left power');
+          break;
+        case 'j':
+          newRightMotorPower = Math.min(rightMotorPower + 0.1, 1);
+          console.log('Increasing right power');
+          break;
+        case 'n':
+          newRightMotorPower = Math.max(rightMotorPower - 0.1, -1);
+          console.log('Decreasing right power');
+          break;
+        default:
+          return;
+      }
+      console.log('New power values:', { left: newLeftMotorPower, right: newRightMotorPower });
+      setLeftMotorPower(newLeftMotorPower);
+      setRightMotorPower(newRightMotorPower);
+      setControlMethod('keyboard');
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('gamepadconnected', handleGamepadConnect);
+    window.addEventListener('gamepaddisconnected', handleGamepadDisconnect);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('gamepadconnected', handleGamepadConnect);
+      window.removeEventListener('gamepaddisconnected', handleGamepadDisconnect);
+    };
+  }, [leftMotorPower, rightMotorPower]);
+
   return (
     <ChakraProvider>
       <Box minH="100vh" bg={bgColor} color={textColor} p={[4, 6, 8]}>
@@ -158,6 +220,10 @@ function App() {
             <Button colorScheme="red" onClick={handleStop} size="lg" isDisabled={!isConnected}>Stop</Button>
             <Button colorScheme="green" onClick={handleStart} size="lg" isDisabled={!isConnected}>Start</Button>
             <Button colorScheme="gray" onClick={handleReset} size="lg" isDisabled={!isConnected}>Reset</Button>
+          </HStack>
+          <HStack spacing={4}>
+            <Button onClick={handleGamepadConnect} isDisabled={isGamepadConnected}>Connect Gamepad</Button>
+            <Button onClick={handleGamepadDisconnect}>Disconnect</Button>
           </HStack>
         </VStack>
       </Box>
