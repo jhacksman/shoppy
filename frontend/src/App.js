@@ -4,10 +4,10 @@ import { io } from 'socket.io-client';
 
 const DEAD_ZONE = 0.1;
 
-const socket = io('http://127.0.0.1:5000', {
+const socket = io('http://shoppy.local:5000', {
   transports: ['websocket'],
   cors: {
-    origin: 'http://localhost:3000',
+    origin: 'http://shoppy.local:3000',
     methods: ["GET", "POST"]
   },
   reconnectionAttempts: 5,
