@@ -77,7 +77,7 @@ function App() {
       } else if (motor === 'right') {
         setRightMotorPower(value);
       }
-      socket.emit('control_command', { motor, value });
+      socket.emit('control_command', { motor: motor, value });
       setGradualStop(false);
     } else {
       console.error('Not connected to server');
@@ -149,8 +149,8 @@ function App() {
       console.log('New power values:', { left: newLeftMotorPower, right: newRightMotorPower });
       setLeftMotorPower(newLeftMotorPower);
       setRightMotorPower(newRightMotorPower);
-      handleControlInputChange(newLeftMotorPower,"left");
-      handleControlInputChange(newRightMotorPower,"right");
+      handleControlInputChange(newLeftMotorPower,'left');
+      handleControlInputChange(newRightMotorPower,'right');
       setControlMethod('keyboard');
     };
 
@@ -179,8 +179,8 @@ function App() {
           if (newLeftMotorPower !== leftMotorPower || newRightMotorPower !== rightMotorPower) {
             setLeftMotorPower(newLeftMotorPower);
             setRightMotorPower(newRightMotorPower);
-            handleControlInputChange(newLeftMotorPower,"left");
-            handleControlInputChange(newRightMotorPower,"right");
+            handleControlInputChange(newLeftMotorPower,'left');
+            handleControlInputChange(newRightMotorPower,'right');
             setControlMethod('gamepad');
             // Remove direct call to sendControlMessage here
           }

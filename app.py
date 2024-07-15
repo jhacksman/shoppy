@@ -81,8 +81,10 @@ def handle_control_command(message):
     try:
         print('Received control command:', message)
         # Implement actual motor control logic here
-        if message.get('motor') and message.get('value'):
+        if message.get('motor') != None:
             val = float(message.get('value', 0))
+            if abs(val) < 0.1:
+                val = 0
             print(val)
             match message.get('motor', 'reset'):
                 case 'right':
