@@ -22,6 +22,39 @@ To set up the Shoppy project, follow these steps:
 9. Start the React development server: `npm start`
 10. Open your web browser and go to `http://localhost:3000` to view the interface.
 
+## Deploying on Raspberry Pi
+
+To deploy the Shoppy application on a Raspberry Pi:
+
+1. Ensure your Raspberry Pi is set up with Raspberry Pi OS and has internet access.
+2. Install Git on your Raspberry Pi if not already installed:
+   ```
+   sudo apt-get update
+   sudo apt-get install git
+   ```
+3. Clone the repository:
+   ```
+   git clone https://github.com/jhacksman/shoppy.git
+   ```
+4. Navigate to the project directory:
+   ```
+   cd shoppy
+   ```
+5. Make the deployment script executable:
+   ```
+   chmod +x deploy_on_pi.sh
+   ```
+6. Run the deployment script:
+   ```
+   ./deploy_on_pi.sh
+   ```
+
+The script will set up a Python virtual environment, install all necessary dependencies, and start the Flask server.
+
+Note: Ensure that your Raspberry Pi has the required hardware connections for UART communication with the ODrive motor controller.
+
+For any issues during deployment, please refer to the Troubleshooting section or open an issue on the GitHub repository.
+
 ## Testing
 To test the system:
 1. Ensure that both the Flask server (http://127.0.0.1:5000) and React server (http://localhost:3000) are running.
