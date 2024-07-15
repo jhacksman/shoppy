@@ -63,7 +63,6 @@ def handle_connect():
     try:
         print('Client connected')
         emit('connection_status', {'status': 'connected'})
-        start_safety_timer_cutoff()
     except Exception as e:
         print(f"Error handling connection: {str(e)}")
         power_cut()
@@ -73,7 +72,6 @@ def handle_disconnect():
     power_cut()
     try:
         print('Client disconnected')
-        initiate_gradual_stop()
     except Exception as e:
         print(f"Error handling disconnection: {str(e)}")
 
@@ -85,6 +83,7 @@ def handle_control_command(message):
         # Implement actual motor control logic here
         if message.get('motor') and message.get('value'):
             val = float(message.get('value'))
+            print(val)
             match message.get('motor'):
                 case 'right':
                     motor_controller.axis0.controller.input_vel = val
@@ -95,7 +94,6 @@ def handle_control_command(message):
                     motor_controller.axis1.controller.input_vel = val
 
         current_power = message.get('power', current_power)
-        start_safety_timer_cutoff()
         emit('control_response', {'status': 'received', 'power': current_power})
     except Exception as e:
         power_cut()
