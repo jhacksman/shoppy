@@ -81,7 +81,6 @@ def handle_control_command(message):
         current_power = message.get('power', current_power)
         odrive_uart.set_motor_power(current_power)
         emit('control_response', {'status': 'received', 'power': current_power})
-        start_safety_timer()
     except Exception as e:
         power_cut()
         print(f"Error handling control command: {str(e)}")
