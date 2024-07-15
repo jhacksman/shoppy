@@ -90,8 +90,9 @@ def handle_control_command(message):
                 case 'left':
                     motor_controller.axis1.controller.input_vel = float(message.get('value'))
                 case 'both':
-                    motor_controller.axis0.controller.input_vel = float(message.get('value'))
-                    motor_controller.axis1.controller.input_vel = float(message.get('value'))
+                    val = float(message.get('value'))
+                    motor_controller.axis0.controller.input_vel = val
+                    motor_controller.axis1.controller.input_vel = val
 
         current_power = message.get('power', current_power)
         start_safety_timer_cutoff()
