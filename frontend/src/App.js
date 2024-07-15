@@ -21,6 +21,7 @@ function App() {
   const [gradualStop, setGradualStop] = useState(false);
   const [isGamepadConnected, setIsGamepadConnected] = useState(false);
   const [controlMethod, setControlMethod] = useState('sliders');
+  const [isReconnecting, setIsReconnecting] = useState(false);
 
   const bgColor = useColorModeValue("gray.100", "gray.700");
   const textColor = useColorModeValue("gray.800", "white");
@@ -102,6 +103,12 @@ function App() {
       console.error('Not connected to server');
     }
   }, [isConnected]);
+
+  const handleReconnect = () => {
+    if (!isConnected) {
+      socket.connect();
+    }
+  };
 
   const handleStop = () => {
     setLeftMotorPower(0);
@@ -230,6 +237,17 @@ function App() {
               colorScheme={isConnected ? "green" : "red"}
             >
               {isConnected ? "Connected" : "Disconnected"}
+            </Button>
+            <Button
+              position="absolute"
+              top="0"
+              right="100px"
+              size="sm"
+              colorScheme="blue"
+              onClick={handleReconnect}
+              isDisabled={isConnected}
+            >
+              Reconnect
             </Button>
             {gradualStop && (
               <Alert status="warning" mb={4}>
