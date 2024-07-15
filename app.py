@@ -8,6 +8,9 @@ motor_controller = None
 
 try:
     motor_controller = odrive.find_any()
+    motor_controller.clear_errors()
+    motor_controller.axis0.controller.input_vel = 0
+    motor_controller.axis1.controller.input_vel = 0
 except Exception as e:
     print(f"Could not find the motor driver!\n\t{e}")
     exit(-1)
@@ -16,7 +19,7 @@ except Exception as e:
 def power_cut():
     global motor_controller
     motor_controller.axis0.controller.input_vel = 0
-    motor_controller.axis0.controller.input_vel = 0
+    motor_controller.axis1.controller.input_vel = 0
 
 app = Flask(__name__)
 
