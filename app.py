@@ -26,18 +26,18 @@ CORS(app, resources={r"/*": {"origins": cors_origins }})
 socketio = SocketIO(app, cors_allowed_origins=cors_origins)
 
 last_command_time = time.time()
-safety_timer = None
+safety_timer_cutoff = time.monotonic()
 SAFETY_TIMEOUT = 1.0  # 1 second timeout
 current_power = 1.0  # Assuming full power is 1.0
 DECELERATION_RATE = 0.1  # Reduce power by 10% each step
 DECELERATION_INTERVAL = 0.1  # Decelerate every 100ms
 
-def start_safety_timer():
-    global safety_timer
-    if safety_timer:
-        safety_timer.cancel()
-    safety_timer = threading.Timer(SAFETY_TIMEOUT, initiate_gradual_stop)
-    safety_timer.start()
+def start_safety_timer_cutoff():
+    global safety_timer_cutoff
+    now = time.monotonic()
+    if safety_timer_cutoff - SAFETY_TIMEOUT < now:
+        safety_timer_cutoff = now + SAFETY_TIMEOUT
+        
 
 def initiate_gradual_stop():
     print("No command received. Initiating gradual stop.")
@@ -63,7 +63,7 @@ def handle_connect():
     try:
         print('Client connected')
         emit('connection_status', {'status': 'connected'})
-        start_safety_timer()
+        start_safety_timer_cutoff()
     except Exception as e:
         print(f"Error handling connection: {str(e)}")
         power_cut()
@@ -73,8 +73,6 @@ def handle_disconnect():
     power_cut()
     try:
         print('Client disconnected')
-        if safety_timer:
-            safety_timer.cancel()
         initiate_gradual_stop()
     except Exception as e:
         print(f"Error handling disconnection: {str(e)}")
@@ -96,7 +94,7 @@ def handle_control_command(message):
                     motor_controller.axis1.controller.input_vel = float(message.get("value"))
 
         current_power = message.get('power', current_power)
-        start_safety_timer()
+        start_safety_timer_cutoff()
         emit('control_response', {'status': 'received', 'power': current_power})
     except Exception as e:
         power_cut()
@@ -106,10 +104,9 @@ def handle_control_command(message):
 def check_inactivity():
     global last_command_time
     while True:
-        if time.time() - last_command_time > 1:  # 1 second threshold
+        if time.time() - last_command_time > SAFETY_TIMEOUT:  # 1 second threshold
             print("No command received for 1 second. Initiating gradual stop.")
             # TODO: Implement gradual stop logic here
-            power_cut()
             emit('gradual_stop', broadcast=True)
         socketio.sleep(0.1)  # Check every 100ms
 
