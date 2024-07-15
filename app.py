@@ -83,15 +83,15 @@ def handle_control_command(message):
     try:
         print('Received control command:', message)
         # Implement actual motor control logic here
-        if message.get("motor") and message.get("value"):
-            match message.get("motor"):
-                case "right":
-                    motor_controller.axis0.controller.input_vel = float(message.get("value"))
-                case "left":
-                    motor_controller.axis1.controller.input_vel = float(message.get("value"))
-                case "both":
-                    motor_controller.axis0.controller.input_vel = float(message.get("value"))
-                    motor_controller.axis1.controller.input_vel = float(message.get("value"))
+        if message.get('motor') and message.get('value'):
+            match message.get('motor'):
+                case 'right':
+                    motor_controller.axis0.controller.input_vel = float(message.get('value'))
+                case 'left':
+                    motor_controller.axis1.controller.input_vel = float(message.get('value'))
+                case 'both':
+                    motor_controller.axis0.controller.input_vel = float(message.get('value'))
+                    motor_controller.axis1.controller.input_vel = float(message.get('value'))
 
         current_power = message.get('power', current_power)
         start_safety_timer_cutoff()
