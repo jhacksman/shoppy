@@ -164,6 +164,35 @@ function App() {
     };
   }, [leftMotorPower, rightMotorPower]);
 
+  useEffect(() => {
+    let animationFrameId;
+
+    const handleGamepad = () => {
+      if (isGamepadConnected) {
+        const gamepads = navigator.getGamepads();
+        if (gamepads[0]) {
+          const gamepad = gamepads[0];
+          const newLeftMotorPower = applyDeadZone(-gamepad.axes[1]);
+          const newRightMotorPower = applyDeadZone(-gamepad.axes[3]);
+
+          if (newLeftMotorPower !== leftMotorPower || newRightMotorPower !== rightMotorPower) {
+            setLeftMotorPower(newLeftMotorPower);
+            setRightMotorPower(newRightMotorPower);
+            setControlMethod('gamepad');
+            // Remove direct call to sendControlMessage here
+          }
+        }
+      }
+      animationFrameId = requestAnimationFrame(handleGamepad);
+    };
+
+    handleGamepad();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
+  }, [isGamepadConnected, leftMotorPower, rightMotorPower, applyDeadZone]);
+
   return (
     <ChakraProvider>
       <Box minH="100vh" bg={bgColor} color={textColor} p={[4, 6, 8]}>
