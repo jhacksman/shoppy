@@ -27,7 +27,7 @@ cors_origins = ["http://localhost:3000", f"http://{socket.gethostname()}.local:3
 CORS(app, resources={r"/*": {"origins": cors_origins }})
 socketio = SocketIO(app, cors_allowed_origins=cors_origins)
 
-SAFETY_TIMEOUT = 1.0  # 1 second timeout
+SAFETY_TIMEOUT = 5.0  # 1 second timeout
 current_power = 1.0  # Assuming full power is 1.0
 DECELERATION_RATE = 0.1  # Reduce power by 10% each step
 DECELERATION_INTERVAL = 0.1  # Decelerate every 100ms
@@ -72,7 +72,7 @@ def handle_disconnect():
 def handle_heartbeat():
     global last_heartbeat
     last_heartbeat = time.time()
-    socketio.sleep(SAFETY_TIMEOUT/2.0)
+    socketio.sleep(SAFETY_TIMEOUT*0.95)
     emit('heartbeat')
 
 @socketio.on('control_command')
