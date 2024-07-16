@@ -121,7 +121,7 @@ def motor_control_consumer():
         if motor_commands.empty():
             yield
         else:
-            for cmd in motor_commands.get_nowait():
+            for cmd in motor_commands.get():
                 if cmd[0] != None:
                     drive.axis0.controller.input_vel = cmd[0]
                 if cmd[1] != None:
