@@ -111,10 +111,10 @@ def check_connection():
             initiate_gradual_stop()
         socketio.sleep(0.1)  # Check every 100ms
 
-def motor_control_consumer(motor_commands: Queue): 
+def motor_control_consumer(motor_commands): 
     drive = odrive.find_any()
-    while true:
-        cmd = motor_commands.get(blocking=True)
+    while True:
+        cmd = motor_commands.get(block=True)
         if cmd[0] != None:
             drive.axis0.controller.input_vel = cmd[0]
         if cmd[1] != None:
