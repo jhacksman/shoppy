@@ -153,6 +153,7 @@ def motor_control_consumer():
                     if cmd[0] == None and cmd[1] == None:
                         log.info("Resetting controller")
                         drive.reboot()
+                        break
                 except:
                     socketio.sleep(0.05)
         except Exception as e:
