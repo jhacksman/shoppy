@@ -112,7 +112,7 @@ def check_connection():
     while True:
         if time.time() - last_heartbeat > SAFETY_TIMEOUT:
             initiate_gradual_stop()
-        socketio.sleep(0.1)  # Check every 100ms
+        socketio.sleep(0.5)  # Check every 100ms
 
 drive = odrive.find_any()
 odrive.utils.dump_errors(drive)
