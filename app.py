@@ -116,8 +116,14 @@ def check_connection():
 
 def motor_control_consumer(): 
     global motor_commands
-    drive = await odrive.find_any_async()
-    print(f'Found odrive {odrive}',flush=True)
+    drive = odrive.find_any()
+    odrive.utils.dump_errors(drive, clear=True)
+    drive.reboot()
+    del drive
+    print(f'Found odrive, rebooting...',flush=True)
+    drive = odrive.find_any()
+    odrive.utils.dump_errors(drive, clear=True)
+    print(f'Drive initialized', flush=True)
     while True:
         try:
             cmd = motor_commands.get_nowait()
