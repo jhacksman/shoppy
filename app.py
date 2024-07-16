@@ -115,6 +115,8 @@ def check_connection():
         socketio.sleep(0.5)  # Check every 100ms
 
 drive = odrive.find_any()
+drive.reboot()
+drive = odrive.find_any()
 odrive.utils.dump_errors(drive)
 
 def motor_control_consumer(): 
