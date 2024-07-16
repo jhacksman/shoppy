@@ -114,11 +114,11 @@ def check_connection():
         socketio.sleep(0.1)  # Check every 100ms
 
 drive = odrive.find_any()
-odrive.utis.dump_errors(drive)
+odrive.utils.dump_errors(drive)
 
 def motor_control_consumer(): 
     global motor_commands, drive
-    print(f'Found odrive: {drive}')
+    print(f'Found odrive: {drive}',flush=True)
     while True:
         if motor_commands.empty():
             yield
