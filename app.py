@@ -73,6 +73,7 @@ def handle_heartbeat():
     global last_heartbeat
     last_heartbeat = time.time()
     socketio.sleep(SAFETY_TIMEOUT)
+    emit('heartbeat')
 
 @socketio.on('control_command')
 def handle_control_command(message):
