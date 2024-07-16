@@ -31,7 +31,7 @@ cors_origins = ["http://localhost:3000", f"http://{socket.gethostname()}.local:3
 CORS(app, resources={r"/*": {"origins": cors_origins }})
 socketio = SocketIO(app, cors_allowed_origins=cors_origins)
 
-SAFETY_TIMEOUT = 5.0  # 1 second timeout
+SAFETY_TIMEOUT = 5.0  # 5 second timeout
 current_power = 1.0  # Assuming full power is 1.0
 DECELERATION_RATE = 0.1  # Reduce power by 10% each step
 DECELERATION_INTERVAL = 0.1  # Decelerate every 100ms
@@ -69,7 +69,7 @@ def handle_connect():
     try:
         log.info('Client connected')
         emit('connection_status', {'status': 'connected'})
-        emit('heartbeat')
+        emit('ping')
     except Exception as e:
         log.error(f"Error handling connection: {str(e)}")
         power_cut()
@@ -83,13 +83,13 @@ def handle_disconnect():
     except Exception as e:
         log.error(f"Error handling disconnection: {str(e)}")
 
-@socketio.on('heartbeat')
+@socketio.on('pong')
 def handle_heartbeat():
     global last_heartbeat, log
     last_heartbeat = time.time()
     socketio.sleep(SAFETY_TIMEOUT*0.95)
     log.info("Heartbeat recv'd")
-    emit('heartbeat')
+    emit('ping')
 
 @socketio.on('control_command')
 def handle_control_command(message):
@@ -129,7 +129,7 @@ def check_connection():
         if time.time() - last_heartbeat > SAFETY_TIMEOUT:
             log.info(f'Disconnected for too long, stopping...')
             initiate_gradual_stop()
-        socketio.sleep(0.5)  # Check every 100ms
+        socketio.sleep(1)
 
 def motor_control_consumer(): 
     global motor_commands, log
