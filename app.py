@@ -2,6 +2,7 @@ import time, socket, odrive, threading, queue
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, disconnect
 from flask_cors import CORS
+from logging import DEBUG
 
 last_heartbeat = time.time()
 motor_commands = queue.Queue(maxsize=20)
@@ -23,6 +24,7 @@ def power_cut():
 app = Flask(__name__)
 
 log = app.logger
+log.setLevel(DEBUG)
 
 cors_origins = ["http://localhost:3000", f"http://{socket.gethostname()}.local:3000", "http://192.168.15.18:3000" ]
 
