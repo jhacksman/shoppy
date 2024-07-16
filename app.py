@@ -44,7 +44,7 @@ def gradual_stop():
         print(f"Reducing power to {current_power}")
         socketio.sleep(DECELERATION_INTERVAL)
     print("Gradual stop completed")
-    emit('gradual_stop_completed', broadcast=True)
+    #emit('gradual_stop_completed', broadcast=True)
 
 @app.route('/')
 def index():
