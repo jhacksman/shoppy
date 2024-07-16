@@ -44,7 +44,7 @@ def gradual_stop():
         print(f"Reducing power to {current_power}")
         socketio.sleep(DECELERATION_INTERVAL)
     print("Gradual stop completed")
-    emit('gradual_stop_completed', broadcast=True)
+    #emit('gradual_stop_completed', broadcast=True)
 
 @app.route('/')
 def index():
@@ -55,6 +55,7 @@ def handle_connect():
     try:
         print('Client connected')
         emit('connection_status', {'status': 'connected'})
+        emit('heartbeat')
     except Exception as e:
         print(f"Error handling connection: {str(e)}")
         power_cut()
@@ -71,6 +72,7 @@ def handle_disconnect():
 def handle_heartbeat():
     global last_heartbeat
     last_heartbeat = time.time()
+    socketio.sleep(SAFETY_TIMEOUT)
 
 @socketio.on('control_command')
 def handle_control_command(message):

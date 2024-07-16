@@ -27,6 +27,9 @@ function App() {
   const sliderColor = useColorModeValue("blue.500", "blue.200");
 
   useEffect(() => {
+    socket.on('heartbeat', () => {
+        socket.emit('heartbeat');  
+    })
     socket.on('connect', () => {
       console.log('Connected to WebSocket server');
       setIsConnected(true);
