@@ -116,6 +116,7 @@ def check_connection():
 def motor_control_consumer(): 
     global motor_commands
     drive = odrive.find_any()
+    print(f'Found odrive: {drive}')
     while True:
         if motor_commands.empty():
             yield
