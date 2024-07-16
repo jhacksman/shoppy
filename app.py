@@ -41,13 +41,17 @@ is_stopping = False
 def initiate_gradual_stop():
     global is_stopping
     is_stopping = True
-    socketio.start_background_task(gradual_stop)
+    if not is_stopping:
+        socketio.start_background_task(gradual_stop)
+    else:
+        log.info("Discarding stop command, already stopping!")
 
 def gradual_stop():
     global current_power, motor_commands, log, is_stopping
-    while current_power > 0:
-        current_power = max(0, current_power - DECELERATION_RATE)
-        motor_commands.put((-current_power, current_power))
+    power = list(motor_commands)[0]
+    while -0.01 <= power[0] <= 0.01 and -0.01 <= power[1] <= 0.01:
+        power = (power[0] * min(DECELERATION_RATE,0.9), power[1] * min(DECELERATION_RATE,0.9)) 
+        motor_commands.put()
         log.info(f"Reducing power to {current_power}")
         socketio.sleep(DECELERATION_INTERVAL)
     log.info("Gradual stop completed")
