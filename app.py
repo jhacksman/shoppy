@@ -107,7 +107,6 @@ def handle_control_command(message):
         emit('error', {'message': 'Error processing command'})
 
 def check_connection():
-    print("start connection check")
     global last_heartbeat
     while True:
         if time.time() - last_heartbeat > SAFETY_TIMEOUT:
@@ -122,6 +121,7 @@ def motor_control_consumer():
             yield
         else:
             for cmd in motor_commands.get():
+                print(f'CMD Tuple {cmd}', flush=True)
                 if cmd[0] != None:
                     drive.axis0.controller.input_vel = cmd[0]
                 if cmd[1] != None:
