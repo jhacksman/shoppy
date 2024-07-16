@@ -36,18 +36,22 @@ current_power = 1.0  # Assuming full power is 1.0
 DECELERATION_RATE = 0.1  # Reduce power by 10% each step
 DECELERATION_INTERVAL = 0.1  # Decelerate every 100ms
 
+is_stopping = False
+
 def initiate_gradual_stop():
-    #print("No command received. Initiating gradual stop.")
+    global is_stopping
+    is_stopping = True
     socketio.start_background_task(gradual_stop)
 
 def gradual_stop():
-    global current_power, motor_commands, log
+    global current_power, motor_commands, log, is_stopping
     while current_power > 0:
         current_power = max(0, current_power - DECELERATION_RATE)
         motor_commands.put((-current_power, current_power))
         log.info(f"Reducing power to {current_power}")
         socketio.sleep(DECELERATION_INTERVAL)
     log.info("Gradual stop completed")
+    is_stopping = False
     #emit('gradual_stop_completed', broadcast=True)
 
 @app.route('/')
@@ -84,7 +88,7 @@ def handle_heartbeat():
 
 @socketio.on('control_command')
 def handle_control_command(message):
-    global last_heartbeat, current_power, motor_commands, log
+    global last_heartbeat, current_power, motor_commands, log, is_stopping
     if time.time() - last_heartbeat > SAFETY_TIMEOUT:
         initiate_gradual_stop()
         disconnect()
@@ -92,7 +96,7 @@ def handle_control_command(message):
     try:
         log.info(f'Received control command: {message} motor queue size: {motor_commands.qsize()}' )
         # Implement actual motor control logic here
-        if message.get('motor') != None and not motor_commands.full():
+        if message.get('motor') != None and not motor_commands.full() and not is_stopping:
             val = float(message.get('value', 0))
             if abs(val) < 0.1:
                 val = 0
@@ -118,6 +122,7 @@ def check_connection():
     log.info('Starting connection test')
     while True:
         if time.time() - last_heartbeat > SAFETY_TIMEOUT:
+            log.info(f'Disconnected for too long, stopping...')
             initiate_gradual_stop()
         socketio.sleep(0.5)  # Check every 100ms
 
