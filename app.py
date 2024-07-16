@@ -114,7 +114,8 @@ def check_connection():
             initiate_gradual_stop()
         socketio.sleep(0.1)  # Check every 100ms
 
-def motor_control_consumer(motor_commands): 
+def motor_control_consumer(): 
+    global motor_commands
     drive = odrive.find_any()
     print("Motor controler initilized")
     odrive.dump_errors(drive)
@@ -132,5 +133,5 @@ def motor_control_consumer(motor_commands):
 
 if __name__ == '__main__':
     socketio.start_background_task(check_connection)
-    socketio.start_background_task(motor_control_consumer, args=[motor_commands])
+    socketio.start_background_task(motor_control_consumer)
     socketio.run(app, host='0.0.0.0')
