@@ -1,4 +1,4 @@
-import time, socket, odrive, threading, queue
+import time, socket, odrive, threading, queue   
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, disconnect
 from flask_cors import CORS
@@ -117,6 +117,7 @@ def check_connection():
 drive = odrive.find_any()
 drive.reboot()
 del drive
+socketio.sleep(1)
 drive = odrive.find_any()
 odrive.utils.dump_errors(drive)
 
