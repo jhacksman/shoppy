@@ -50,11 +50,12 @@ def gradual_stop():
     global motor_commands, log, is_stopping
     q = list(motor_commands.queue)
     power = (0,0) if motor_commands.empty() else q[0]
-    while ((-0.01 < power[0] < 0.01) or (-0.01 < power[1] < 0.01)):
+    while ((abs(power[0]) > 0.01) or (abs(power[1]) > 0.01)):
         power = (power[0] * min(DECELERATION_RATE,0.9), power[1] * min(DECELERATION_RATE,0.9)) 
         motor_commands.put(power)
         log.info(f"Reducing power to {power}")
         socketio.sleep(DECELERATION_INTERVAL)
+    motor_commands.put((0.0,0.0))
     log.info("Gradual stop completed")
     is_stopping = False
     #emit('gradual_stop_completed', broadcast=True)
