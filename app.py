@@ -117,10 +117,9 @@ def check_connection():
 def motor_control_consumer(): 
     global motor_commands
     drive = odrive.find_any()
-    print("Motor controler initilized")
     while True:
         if motor_commands.empty():
-            socketio.sleep(0.01)
+            yield
         else:
             for cmd in motor_commands.get_nowait():
                 if cmd[0] != None:
