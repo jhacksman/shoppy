@@ -141,6 +141,9 @@ def motor_control_consumer():
             odrive.utils.dump_errors(drive, clear=True)
             if drive.error != 0:
                 drive.reboot()
+                log.error("ODrive error... retrying in 5 second...")
+                socketio.sleep(5)
+                continue
             log.info(f'Drive initialized')
             while True:
                 try:
@@ -151,8 +154,9 @@ def motor_control_consumer():
                     if cmd[1] != None:
                         drive.axis1.controller.input_vel = cmd[1]
                     if cmd[0] == None and cmd[1] == None:
-                        log.info("Resetting controller")
+                        log.info("Resetting ODrive...")
                         drive.reboot()
+                        socketio.sleep(5)
                         break
                 except:
                     socketio.sleep(0.05)
