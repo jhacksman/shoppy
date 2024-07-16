@@ -119,21 +119,20 @@ odrive.utils.dump_errors(drive)
 
 def motor_control_consumer(): 
     global motor_commands, drive
-    print(f'Found odrive: {drive}',flush=True)
+    print(f'Found odrive',flush=True)
     while True:
-        if motor_commands.empty():
-            yield
-        else:
+        if not motor_commands.empty():
             for cmd in motor_commands.get():
                 print(f'CMD Tuple {cmd}', flush=True)
                 if cmd[0] != None:
                     drive.axis0.controller.input_vel = cmd[0]
                 if cmd[1] != None:
                     drive.axis1.controller.input_vel = cmd[1]
+        socketio.sleep(0.01)
             
 
 
 if __name__ == '__main__':
     socketio.start_background_task(check_connection)
     socketio.start_background_task(motor_control_consumer)
-    socketio.run(app, host='0.0.0.0', logger=True)
+    socketio.run(app, host='0.0.0.0')
