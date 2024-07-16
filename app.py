@@ -107,6 +107,7 @@ def handle_control_command(message):
         emit('error', {'message': 'Error processing command'})
 
 def check_connection():
+    print("start connection check")
     global last_heartbeat
     while True:
         if time.time() - last_heartbeat > SAFETY_TIMEOUT:
