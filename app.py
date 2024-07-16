@@ -40,8 +40,8 @@ is_stopping = False
 
 def initiate_gradual_stop():
     global is_stopping
-    is_stopping = True
     if not is_stopping:
+        is_stopping = True
         socketio.start_background_task(gradual_stop)
     else:
         log.info("Discarding stop command, already stopping!")
