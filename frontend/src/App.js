@@ -71,6 +71,7 @@ function App() {
       socket.off('control_response');
       socket.off('gradual_stop');
       socket.off('connection_status');
+      socket.off('ping');
     };
   }, []);
 
