@@ -117,7 +117,7 @@ def check_connection():
 drive = odrive.find_any()
 drive.reboot()
 del drive
-time.sleep(1)
+time.sleep(10)
 drive = odrive.find_any()
 odrive.utils.dump_errors(drive)
 
