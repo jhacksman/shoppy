@@ -115,12 +115,15 @@ def check_connection():
 
 def motor_control_consumer(motor_commands): 
     drive = odrive.find_any()
+    print("Motor controler initilized")
+    odrive.dump_errors(drive)
     while True:
         cmd = motor_commands.get(block=True)
         if cmd[0] != None:
             drive.axis0.controller.input_vel = cmd[0]
         if cmd[1] != None:
             drive.axis1.controller.input_vel = cmd[1]
+        
 
 
 if __name__ == '__main__':
