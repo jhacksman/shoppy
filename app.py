@@ -40,8 +40,7 @@ def gradual_stop():
     global current_power, motor_commands
     while current_power > 0:
         current_power = max(0, current_power - DECELERATION_RATE)
-        if motor_controller:
-            motor_commands.put_nowait((-current_power, current_power))
+        motor_commands.put((-current_power, current_power), block=True)
         print(f"Reducing power to {current_power}")
         socketio.sleep(DECELERATION_INTERVAL)
     print("Gradual stop completed")
@@ -83,7 +82,7 @@ def handle_control_command(message):
     try:
         print('Received control command:', message)
         # Implement actual motor control logic here
-        if message.get('motor') != None and motor_controller:
+        if message.get('motor') != None and not motor_commands.full():
             val = float(message.get('value', 0))
             if abs(val) < 0.1:
                 val = 0
@@ -123,7 +122,7 @@ def motor_control_consumer(motor_commands):
 
 if __name__ == '__main__':
     socketio.start_background_task(check_connection)
-    mc_ctrl = threading.Thread(target=motor_controll_consumer, args=motor_commands)
+    mc_ctrl = threading.Thread(target=motor_control_consumer, args=[motor_commands])
     mc_ctrl.run()
     socketio.run(app, host='0.0.0.0')
     mc_ctrl.wait()
