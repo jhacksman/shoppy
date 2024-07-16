@@ -44,7 +44,7 @@ def gradual_stop():
     global current_power, motor_commands, log
     while current_power > 0:
         current_power = max(0, current_power - DECELERATION_RATE)
-        motor_commands.put((-current_power, current_power), block=True)
+        motor_commands.put((-current_power, current_power))
         log.info(f"Reducing power to {current_power}")
         socketio.sleep(DECELERATION_INTERVAL)
     log.info("Gradual stop completed")
@@ -115,7 +115,7 @@ def handle_control_command(message):
 
 def check_connection():
     global last_heartbeat, log
-    log.info('Starting connection test',flush=True)
+    log.info('Starting connection test')
     while True:
         if time.time() - last_heartbeat > SAFETY_TIMEOUT:
             initiate_gradual_stop()
@@ -129,14 +129,14 @@ def motor_control_consumer():
             odrive.utils.dump_errors(drive, clear=True)
             drive.reboot()
             del drive
-            log.info(f'Found odrive, rebooting...',flush=True)
+            log.info(f'Found odrive, rebooting...')
             drive = odrive.find_any()
             odrive.utils.dump_errors(drive, clear=True)
-            log.info(f'Drive initialized', flush=True)
+            log.info(f'Drive initialized')
             while True:
                 try:
                     cmd = motor_commands.get_nowait()
-                    log.debug(f'CMD Tuple {cmd}', flush=True)
+                    log.debug(f'CMD Tuple {cmd}')
                     if cmd[0] != None:
                         drive.axis0.controller.input_vel = cmd[0]
                     if cmd[1] != None:
