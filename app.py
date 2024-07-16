@@ -115,6 +115,7 @@ def handle_control_command(message):
                     motor_commands.put_nowait((-val, val));
                 case 'reset':
                     motor_commands.put_nowait((0.0, 0.0));
+                    motor_commands.put_nowait((None, None));
 
         current_power = message.get('power', current_power)
         emit('control_response', {'status': 'received', 'power': current_power})
@@ -149,6 +150,9 @@ def motor_control_consumer():
                         drive.axis0.controller.input_vel = cmd[0]
                     if cmd[1] != None:
                         drive.axis1.controller.input_vel = cmd[1]
+                    if cmd[0] == None and cmd[1] == None:
+                        log.info("Resetting controller")
+                        drive.reboot()
                 except:
                     socketio.sleep(0.05)
         except Exception as e:
