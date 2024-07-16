@@ -118,7 +118,6 @@ def motor_control_consumer():
     global motor_commands
     drive = odrive.find_any()
     print("Motor controler initilized")
-    odrive.dump_errors(drive)
     while True:
         if motor_commands.empty():
             socketio.sleep(0.01)
