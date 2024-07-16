@@ -122,7 +122,7 @@ def motor_control_consumer():
     print(f'Found odrive: {drive}',flush=True)
     while True:
         if motor_commands.empty():
-            socketio.
+            yield
         else:
             for cmd in motor_commands.get():
                 print(f'CMD Tuple {cmd}', flush=True)
