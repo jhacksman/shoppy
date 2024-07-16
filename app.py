@@ -134,7 +134,7 @@ def motor_control_consumer():
             while True:
                 try:
                     cmd = motor_commands.get_nowait()
-                    print(f'CMD Tuple {cmd}', flush=True)
+                    log.debug(f'CMD Tuple {cmd}', flush=True)
                     if cmd[0] != None:
                         drive.axis0.controller.input_vel = cmd[0]
                     if cmd[1] != None:
