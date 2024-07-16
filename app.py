@@ -5,7 +5,7 @@ from flask_cors import CORS
 from logging import DEBUG
 
 last_heartbeat = time.time()
-motor_commands = queue.Queue(maxsize=20)
+motor_commands = queue.Queue(maxsize=50)
 
 # Comment out ODrive initialization for testing purposes
 # try:
