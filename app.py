@@ -141,7 +141,7 @@ def motor_control_consumer():
                         drive.axis1.controller.input_vel = cmd[1]
                 except:
                     socketio.sleep(0.05)
-        except e as Exception:
+        except Exception as e:
             log.error("Could not initilize motor controller, trying again in 10 seconds...")
             log.error(f"\t{e}")
             socket.sleep(10)
