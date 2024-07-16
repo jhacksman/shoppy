@@ -1,11 +1,10 @@
-import time, socket, odrive, threading
+import time, socket, odrive, threading, queue
 from flask import Flask, render_template
 from flask_socketio import SocketIO, emit, disconnect
 from flask_cors import CORS
-from uart_communication import ODriveUART
 
-motor_controller = None
 last_heartbeat = time.time()
+motor_commands = queue.Queue(maxsize=20)
 
 # Comment out ODrive initialization for testing purposes
 # try:
@@ -19,10 +18,7 @@ last_heartbeat = time.time()
 
 # Temporary crappy stop-if-error case handler
 def power_cut():
-    global motor_controller
-    if motor_controller:
-        motor_controller.axis0.controller.input_vel = 0
-        motor_controller.axis1.controller.input_vel = 0
+    motor_commands.put((0.0, 0.0), block=True)
 
 app = Flask(__name__)
 
@@ -41,12 +37,11 @@ def initiate_gradual_stop():
     socketio.start_background_task(gradual_stop)
 
 def gradual_stop():
-    global current_power, motor_controller
+    global current_power, motor_commands
     while current_power > 0:
         current_power = max(0, current_power - DECELERATION_RATE)
         if motor_controller:
-            motor_controller.axis0.controller.input_vel = -current_power
-            motor_controller.axis1.controller.input_vel = current_power
+            motor_commands.put_nowait((-current_power, current_power))
         print(f"Reducing power to {current_power}")
         socketio.sleep(DECELERATION_INTERVAL)
     print("Gradual stop completed")
@@ -80,7 +75,7 @@ def handle_heartbeat():
 
 @socketio.on('control_command')
 def handle_control_command(message):
-    global last_heartbeat, current_power, motor_controller
+    global last_heartbeat, current_power, motor_commands
     if time.time() - last_heartbeat > SAFETY_TIMEOUT:
         initiate_gradual_stop()
         disconnect()
@@ -94,15 +89,13 @@ def handle_control_command(message):
                 val = 0
             match message.get('motor', 'reset'):
                 case 'right':
-                    motor_controller.axis0.controller.input_vel = val
+                    motor_commands.put_nowait((None, val));
                 case 'left':
-                    motor_controller.axis1.controller.input_vel = -val
+                    motor_commands.put_nowait((-val, None));
                 case 'both':
-                    motor_controller.axis0.controller.input_vel = val
-                    motor_controller.axis1.controller.input_vel = -val
+                    motor_commands.put_nowait((-val, val));
                 case 'reset':
-                    motor_controller.axis0.controller.input_vel = 0
-                    motor_controller.axis1.controller.input_vel = 0
+                    motor_commands.put_nowait((0.0, 0.0));
 
         current_power = message.get('power', current_power)
         emit('control_response', {'status': 'received', 'power': current_power})
@@ -118,6 +111,19 @@ def check_connection():
             initiate_gradual_stop()
         socketio.sleep(0.1)  # Check every 100ms
 
+def motor_control_consumer(motor_commands: Queue): 
+    drive = odrive.find_any()
+    while true:
+        cmd = motor_commands.get(blocking=True)
+        if cmd[0] != None:
+            drive.axis0.controller.input_vel = cmd[0]
+        if cmd[1] != None:
+            drive.axis1.controller.input_vel = cmd[1]
+
+
 if __name__ == '__main__':
     socketio.start_background_task(check_connection)
+    mc_ctrl = threading.Thread(target=motor_controll_consumer, args=motor_commands)
+    mc_ctrl.run()
     socketio.run(app, host='0.0.0.0')
+    mc_ctrl.wait()
