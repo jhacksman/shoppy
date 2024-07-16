@@ -89,7 +89,7 @@ def handle_heartbeat():
     global last_heartbeat, log
     last_heartbeat = time.time()
     socketio.sleep(SAFETY_TIMEOUT*0.95)
-    log.info("Heartbeat recv'd")
+    log.info("Heartbeat pong recv'd")
     emit('ping')
 
 @socketio.on('control_command')

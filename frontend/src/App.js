@@ -28,6 +28,7 @@ function App() {
 
   useEffect(() => {
     socket.on('ping', () => {
+        console.log("Recv'd ping")
         socket.emit('pong');  
     })
     socket.on('connect', () => {
