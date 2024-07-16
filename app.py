@@ -47,8 +47,8 @@ def initiate_gradual_stop():
         log.info("Discarding stop command, already stopping!")
 
 def gradual_stop():
-    global current_power, motor_commands, log, is_stopping
-    power = list(motor_commands)[0]
+    global motor_commands, log, is_stopping
+    power = list(motor_commands.queue)[0]
     while (-0.01 <= power[0] <= 0.01 or -0.01 <= power[1] <= 0.01):
         power = (power[0] * min(DECELERATION_RATE,0.9), power[1] * min(DECELERATION_RATE,0.9)) 
         motor_commands.put(power)
