@@ -128,9 +128,8 @@ def motor_control_consumer():
                 drive.axis0.controller.input_vel = cmd[0]
             if cmd[1] != None:
                 drive.axis1.controller.input_vel = cmd[1]
-            socketio.sleep(0.01)
         except:
-            socketio.sleep(0.1)
+            socketio.sleep(0.05)
             
 
 
