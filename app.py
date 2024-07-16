@@ -33,7 +33,7 @@ DECELERATION_RATE = 0.1  # Reduce power by 10% each step
 DECELERATION_INTERVAL = 0.1  # Decelerate every 100ms
 
 def initiate_gradual_stop():
-    print("No command received. Initiating gradual stop.")
+    #print("No command received. Initiating gradual stop.")
     socketio.start_background_task(gradual_stop)
 
 def gradual_stop():
@@ -41,9 +41,9 @@ def gradual_stop():
     while current_power > 0:
         current_power = max(0, current_power - DECELERATION_RATE)
         motor_commands.put((-current_power, current_power), block=True)
-        print(f"Reducing power to {current_power}")
+        #print(f"Reducing power to {current_power}")
         socketio.sleep(DECELERATION_INTERVAL)
-    print("Gradual stop completed")
+    #print("Gradual stop completed")
     #emit('gradual_stop_completed', broadcast=True)
 
 @app.route('/')
