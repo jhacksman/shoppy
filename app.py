@@ -108,6 +108,7 @@ def handle_control_command(message):
 
 def check_connection():
     global last_heartbeat
+    print('Starting connection test',flush=True)
     while True:
         if time.time() - last_heartbeat > SAFETY_TIMEOUT:
             initiate_gradual_stop()
