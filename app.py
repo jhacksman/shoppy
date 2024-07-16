@@ -114,16 +114,10 @@ def check_connection():
             initiate_gradual_stop()
         socketio.sleep(0.5)  # Check every 100ms
 
-drive = odrive.find_any()
-drive.reboot()
-del drive
-time.sleep(10)
-drive = odrive.find_any()
-odrive.utils.dump_errors(drive)
-
 def motor_control_consumer(): 
-    global motor_commands, drive
-    print(f'Found odrive',flush=True)
+    global motor_commands
+    drive = await odrive.find_any_async()
+    print(f'Found odrive {odrive}',flush=True)
     while True:
         try:
             cmd = motor_commands.get_nowait()
