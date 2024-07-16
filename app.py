@@ -138,8 +138,10 @@ def motor_control_consumer():
     while True:
         try:
             drive = odrive.find_any()
+            drive.axis0.requested_state = odrive.utils.AXIS_STATE_CLOSED_LOOP_CONTROL
+            drive.axis1.requested_state = odrive.utils.AXIS_STATE_CLOSED_LOOP_CONTROL
             odrive.utils.dump_errors(drive, clear=True)
-            if drive.error != 0 or drive.axis0.error != 0 or drive.axis1.error != 0:
+            if (drive.error != 0) or (drive.axis0.error != 0) or (drive.axis1.error != 0):
                 drive.reboot()
                 log.error("ODrive error... retrying in 5 second...")
                 socketio.sleep(5)
