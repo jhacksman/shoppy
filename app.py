@@ -146,7 +146,7 @@ def motor_control_consumer():
         except Exception as e:
             log.error("Could not initilize motor controller, trying again in 10 seconds...")
             log.error(f"\t{e}")
-            socket.sleep(10)
+            socketio.sleep(10)
         
             
 
