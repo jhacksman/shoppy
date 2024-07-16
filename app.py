@@ -83,7 +83,7 @@ def handle_control_command(message):
         disconnect()
         return
     try:
-        print(f'Received control command: {message} motor queue size: {len(motor_commands)}' )
+        print(f'Received control command: {message} motor queue size: {motor_commands.qsize()}' )
         # Implement actual motor control logic here
         if message.get('motor') != None and not motor_commands.full():
             val = float(message.get('value', 0))
