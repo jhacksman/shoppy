@@ -122,7 +122,5 @@ def motor_control_consumer(motor_commands):
 
 if __name__ == '__main__':
     socketio.start_background_task(check_connection)
-    mc_ctrl = threading.Thread(target=motor_control_consumer, args=[motor_commands])
-    mc_ctrl.run()
+    socketio.start_background_task(motor_control_consumer, args=[motor_commands])
     socketio.run(app, host='0.0.0.0')
-    mc_ctrl.wait()
