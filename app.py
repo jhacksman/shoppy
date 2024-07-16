@@ -22,7 +22,7 @@ def power_cut():
 
 app = Flask(__name__)
 
-cors_origins = ["http://localhost:3000", f"http://{socket.gethostname()}.local:3000" ]
+cors_origins = ["http://localhost:3000", f"http://{socket.gethostname()}.local:3000", "http://192.168.15.18:3000" ]
 
 CORS(app, resources={r"/*": {"origins": cors_origins }})
 socketio = SocketIO(app, cors_allowed_origins=cors_origins)
