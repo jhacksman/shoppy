@@ -122,12 +122,12 @@ def motor_control_consumer():
     print(f'Found odrive',flush=True)
     while True:
         if not motor_commands.empty():
-            for (l,r) in motor_commands.get():
+            for i, cmd in enumerate(motor_commands.get()):
                 print(f'CMD Tuple {cmd}', flush=True)
-                if l != None:
-                    drive.axis0.controller.input_vel = l
-                if r != None:
-                    drive.axis1.controller.input_vel = r
+                if cmd[0] != None:
+                    drive.axis0.controller.input_vel = cmd[0]
+                if cmd[1] != None:
+                    drive.axis1.controller.input_vel = cmd[1]
         socketio.sleep(0.01)
             
 
