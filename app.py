@@ -150,9 +150,9 @@ def motor_control_consumer():
                     cmd = motor_commands.get()
                     log.debug(f'CMD Tuple {cmd}')
                     if cmd[0] != None:
-                        drive.axis0.controller.input_vel = cmd[0]
+                        drive.axis0.controller.input_vel = float(cmd[0])
                     if cmd[1] != None:
-                        drive.axis1.controller.input_vel = cmd[1]
+                        drive.axis1.controller.input_vel = float(cmd[1])
                     if cmd[0] == None and cmd[1] == None:
                         log.info("Resetting ODrive...")
                         try:
