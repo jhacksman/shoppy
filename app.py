@@ -72,7 +72,7 @@ def handle_disconnect():
 def handle_heartbeat():
     global last_heartbeat
     last_heartbeat = time.time()
-    socketio.sleep(SAFETY_TIMEOUT)
+    socketio.sleep(SAFETY_TIMEOUT/2.0)
     emit('heartbeat')
 
 @socketio.on('control_command')
