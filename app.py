@@ -122,7 +122,7 @@ def motor_control_consumer():
         if motor_commands.empty():
             socketio.sleep(0.01)
         else:
-            for cmd in motor_commands.get():
+            for cmd in motor_commands.get_nowait():
                 if cmd[0] != None:
                     drive.axis0.controller.input_vel = cmd[0]
                 if cmd[1] != None:
