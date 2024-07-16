@@ -122,7 +122,7 @@ def motor_control_consumer():
     print(f'Found odrive: {drive}',flush=True)
     while True:
         if motor_commands.empty():
-            yield
+            socketio.
         else:
             for cmd in motor_commands.get():
                 print(f'CMD Tuple {cmd}', flush=True)
@@ -136,4 +136,4 @@ def motor_control_consumer():
 if __name__ == '__main__':
     socketio.start_background_task(check_connection)
     socketio.start_background_task(motor_control_consumer)
-    socketio.run(app, host='0.0.0.0')
+    socketio.run(app, host='0.0.0.0', logger=True)
