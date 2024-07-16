@@ -137,11 +137,6 @@ def motor_control_consumer():
         try:
             drive = odrive.find_any()
             odrive.utils.dump_errors(drive, clear=True)
-            drive.reboot()
-            del drive
-            log.info(f'Found odrive, rebooting...')
-            drive = odrive.find_any()
-            odrive.utils.dump_errors(drive, clear=True)
             log.info(f'Drive initialized')
             while True:
                 try:
