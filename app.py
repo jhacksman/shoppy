@@ -21,6 +21,8 @@ SAFETY_TIMEOUT = 5.0  # 5 second timeout
 current_power = 1.0  # Assuming full power is 1.0
 DECELERATION_RATE = 0.1  # Reduce power by 10% each step
 DECELERATION_INTERVAL = 0.1  # Decelerate every 100ms
+SPEED_MULTIPLIER = 1 # DO NOT TOUCH THIS IF YOU DONT KNOW WHAT YOUR DOING!!!!!!
+
 
 is_stopping = False
 
@@ -143,11 +145,12 @@ def motor_control_consumer():
                 try:
                     cmd = motor_commands.get()
                     log.debug(f'CMD Tuple {cmd}')
+                    log.debug(f'Motor Current {drive.ibus}, Bus Voltage{drive.vbus_voltage}')
                     if cmd[0] != None:
-                        drive.axis1.controller.input_vel = -float(cmd[0])
+                        drive.axis1.controller.input_vel = -float(cmd[0])*SPEED_MULTIPLIER
                     if cmd[1] != None:
                         # Negated to correct for fliped motor rotation dir
-                        drive.axis0.controller.input_vel = float(cmd[1])
+                        drive.axis0.controller.input_vel = float(cmd[1])*SPEED_MULTIPLIER
                     if cmd[0] == None and cmd[1] == None:
                         log.info("Resetting ODrive...")
                         try:

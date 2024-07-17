@@ -10,7 +10,7 @@ const socket = io('http://shoppy.local:5000', {
     origin: ['http://shoppy.local:3000', 'http://192.168.15.18:3000'],
     methods: ["GET", "POST"]
   },
-  reconnectionAttempts: 5,
+  reconnection: true,
   reconnectionDelay: 1000
 });
 
