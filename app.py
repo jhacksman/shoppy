@@ -7,20 +7,6 @@ from logging import DEBUG
 last_heartbeat = time.time()
 motor_commands = queue.Queue(maxsize=50)
 
-# Comment out ODrive initialization for testing purposes
-# try:
-#     motor_controller = odrive.find_any()
-#     motor_controller.clear_errors()
-#     motor_controller.axis0.controller.input_vel = 0
-#     motor_controller.axis1.controller.input_vel = 0
-# except Exception as e:
-#     print(f"Could not find the motor driver!\n\t{e}")
-#     exit(-1)
-
-# Temporary crappy stop-if-error case handler
-def power_cut():
-    motor_commands.put((0.0, 0.0), block=True)
-
 app = Flask(__name__)
 
 log = app.logger
@@ -37,6 +23,12 @@ DECELERATION_RATE = 0.1  # Reduce power by 10% each step
 DECELERATION_INTERVAL = 0.1  # Decelerate every 100ms
 
 is_stopping = False
+
+# Temporary crappy stop-if-error case handler
+def power_cut():
+    global log
+    log.error(f'Error state caused power cut!')
+    motor_commands.put((0.0, 0.0), block=True)
 
 def initiate_gradual_stop():
     global is_stopping
@@ -110,9 +102,9 @@ def handle_control_command(message):
                 case 'right':
                     motor_commands.put_nowait((None, val));
                 case 'left':
-                    motor_commands.put_nowait((-val, None));
+                    motor_commands.put_nowait((val, None));
                 case 'both':
-                    motor_commands.put_nowait((-val, val));
+                    motor_commands.put_nowait((val, val));
                 case 'reset':
                     motor_commands.put_nowait((0.0, 0.0));
                     motor_commands.put_nowait((None, None));
