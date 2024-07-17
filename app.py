@@ -146,7 +146,8 @@ def motor_control_consumer():
                     if cmd[0] != None:
                         drive.axis0.controller.input_vel = float(cmd[0])
                     if cmd[1] != None:
-                        drive.axis1.controller.input_vel = float(cmd[1])
+                        # Negated to correct for fliped motor rotation dir
+                        drive.axis1.controller.input_vel = -float(cmd[1])
                     if cmd[0] == None and cmd[1] == None:
                         log.info("Resetting ODrive...")
                         try:
