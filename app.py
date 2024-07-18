@@ -135,8 +135,8 @@ def motor_control_consumer():
             drive = odrive.find_any()
             drive.axis0.requested_state = odrive.utils.AXIS_STATE_CLOSED_LOOP_CONTROL
             drive.axis1.requested_state = odrive.utils.AXIS_STATE_CLOSED_LOOP_CONTROL
-            drive.axis0.config.watchdog_timeout=3
-            drive.axis1.config.watchdog_timeout=3
+            drive.axis0.config.watchdog_timeout=1
+            drive.axis1.config.watchdog_timeout=1
             drive.axis0.config.enable_watchdog=True
             drive.axis1.config.enable_watchdog=True
             drive.axis0.watchdog_feed()
@@ -150,6 +150,7 @@ def motor_control_consumer():
                 continue
             log.info(f'Drive initialized')
             while True:
+                log.debug("Feeding watchdog...")
                 drive.axis0.watchdog_feed()
                 drive.axis1.watchdog_feed()
                 try:
