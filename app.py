@@ -5,7 +5,7 @@ from flask_cors import CORS
 from logging import DEBUG
 
 last_heartbeat = time.time()
-motor_commands = queue.Queue(maxsize=50)
+motor_commands = queue.Queue(maxsize=10)
 
 app = Flask(__name__)
 
@@ -156,7 +156,6 @@ def motor_control_consumer():
                 try:
                     cmd = motor_commands.get(timeout=1)
                     log.debug(f'CMD Tuple {cmd}')
-                    log.debug(f'Motor Current {drive.ibus}, Bus Voltage{drive.vbus_voltage}')
                     if cmd[0] != None:
                         drive.axis1.controller.input_vel = -float(cmd[0])*SPEED_MULTIPLIER
                     if cmd[1] != None:
@@ -172,7 +171,6 @@ def motor_control_consumer():
                             log.error(f"Could not reboot ODrive... {e}")
                         break
                 except:
-                    socketio.sleep(0.1)
         except Exception as e:
             log.error("Could not initilize motor controller, trying again in 2 seconds...")
             log.error(f"{e}")
