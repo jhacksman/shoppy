@@ -131,6 +131,7 @@ def motor_control_consumer():
     global motor_commands, log
     while True:
         try:
+            log.info("Initilizing ODrive...")
             drive = odrive.find_any()
             drive.axis0.requested_state = odrive.utils.AXIS_STATE_CLOSED_LOOP_CONTROL
             drive.axis1.requested_state = odrive.utils.AXIS_STATE_CLOSED_LOOP_CONTROL
@@ -169,9 +170,10 @@ def motor_control_consumer():
                 except:
                     socketio.sleep(0.05)
         except Exception as e:
-            log.error("Could not initilize motor controller, trying again in 10 seconds...")
+            log.error("Could not initilize motor controller, trying again in 2 seconds...")
             log.error(f"{e}")
-            socketio.sleep(10)
+            socketio.sleep(2)
+            continue
         
             
 
