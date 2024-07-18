@@ -139,8 +139,8 @@ def motor_control_consumer():
             drive.axis1.config.watchdog_timeout=3
             drive.axis0.config.enable_watchdog=True
             drive.axis1.config.enable_watchdog=True
-            odrive.axis0.watchdog_feed()
-            odrive.axis1.watchdog_feed()
+            drive.axis0.watchdog_feed()
+            drive.axis1.watchdog_feed()
             
             odrive.utils.dump_errors(drive, clear=True)
             if (drive.error != 0) or (drive.axis0.error != 0) or (drive.axis1.error != 0):
@@ -150,8 +150,8 @@ def motor_control_consumer():
                 continue
             log.info(f'Drive initialized')
             while True:
-                odrive.axis0.watchdog_feed()
-                odrive.axis1.watchdog_feed()
+                drive.axis0.watchdog_feed()
+                drive.axis1.watchdog_feed()
                 try:
                     cmd = motor_commands.get()
                     log.debug(f'CMD Tuple {cmd}')
