@@ -133,8 +133,8 @@ def motor_control_consumer():
         try:
             log.info("Initilizing ODrive...")
             drive = odrive.find_any()
-            drive.axis0.config.watchdog_timeout=1
-            drive.axis1.config.watchdog_timeout=1
+            drive.axis0.config.watchdog_timeout=2
+            drive.axis1.config.watchdog_timeout=2
             drive.axis0.config.enable_watchdog=True
             drive.axis1.config.enable_watchdog=True
             drive.axis0.watchdog_feed()
@@ -150,11 +150,10 @@ def motor_control_consumer():
                 continue
             log.info(f'Drive initialized')
             while True:
-                log.debug("Feeding watchdog...")
                 drive.axis0.watchdog_feed()
                 drive.axis1.watchdog_feed()
                 try:
-                    cmd = motor_commands.get_nowait()
+                    cmd = motor_commands.get(timeout=1)
                     log.debug(f'CMD Tuple {cmd}')
                     log.debug(f'Motor Current {drive.ibus}, Bus Voltage{drive.vbus_voltage}')
                     if cmd[0] != None:
@@ -171,7 +170,7 @@ def motor_control_consumer():
                             log.error(f"Could not reboot ODrive... {e}")
                         break
                 except:
-                    socketio.sleep(0.1)
+                    socketio.sleep(0.5)
         except Exception as e:
             log.error("Could not initilize motor controller, trying again in 2 seconds...")
             log.error(f"{e}")
