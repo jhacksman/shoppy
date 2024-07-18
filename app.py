@@ -133,8 +133,8 @@ def motor_control_consumer():
         try:
             log.info("Initilizing ODrive...")
             drive = odrive.find_any()
-            drive.axis0.config.watchdog_timeout=2
-            drive.axis1.config.watchdog_timeout=2
+            drive.axis0.config.watchdog_timeout=1.2
+            drive.axis1.config.watchdog_timeout=1.2
             drive.axis0.config.enable_watchdog=True
             drive.axis1.config.enable_watchdog=True
             drive.axis0.requested_state = odrive.utils.AXIS_STATE_CLOSED_LOOP_CONTROL
@@ -142,14 +142,14 @@ def motor_control_consumer():
             drive.axis0.watchdog_feed()
             drive.axis1.watchdog_feed()
     
-            log.debug(odrive.utils.format_errors(drive))
             if ((drive.axis0.error != 0) or (drive.axis1.error != 0) or (drive.error != 0)):
                 log.error("ODrive error... retrying in 1 second...")
-                odrive.utils.format_errors(drive, clear=True)
+                odrive.utils.format_errors(drive)
+                drive.clear_erros()
                 drive.reboot()
                 socketio.sleep(1)
                 continue
-            log.info(f'Drive initialized')
+            log.info(f'Drive successfully initialized..')
             while True:
                 drive.axis0.watchdog_feed()
                 drive.axis1.watchdog_feed()
@@ -172,7 +172,7 @@ def motor_control_consumer():
                             log.error(f"Could not reboot ODrive... {e}")
                         break
                 except:
-                    socketio.sleep(0.5)
+                    socketio.sleep(0.1)
         except Exception as e:
             log.error("Could not initilize motor controller, trying again in 2 seconds...")
             log.error(f"{e}")
