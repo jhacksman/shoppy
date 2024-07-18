@@ -133,8 +133,8 @@ def motor_control_consumer():
         try:
             log.info("Initilizing ODrive...")
             drive = odrive.find_any()
-            drive.axis0.config.watchdog_timeout=60
-            drive.axis1.config.watchdog_timeout=60
+            drive.axis0.config.watchdog_timeout=10
+            drive.axis1.config.watchdog_timeout=10
             drive.axis0.config.enable_watchdog=True
             drive.axis1.config.enable_watchdog=True
             drive.axis0.requested_state = odrive.utils.AXIS_STATE_CLOSED_LOOP_CONTROL
