@@ -144,7 +144,7 @@ def motor_control_consumer():
     
             socketio.sleep(0.5)
             odrive.utils.dump_errors(drive, clear=True)
-            log.debug(f'Error check {((drive.axis0.error != 0) or (drive.axis1.error != 0) or (drive.error != 0))}')
+            log.debug(f'Error check {drive}')
             if ((drive.axis0.error != 0) or (drive.axis1.error != 0) or (drive.error != 0)):
                 drive.reboot()
                 log.error("ODrive error... retrying in 1 second...")
