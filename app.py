@@ -171,6 +171,7 @@ def motor_control_consumer():
                             log.error(f"Could not reboot ODrive... {e}")
                         break
                 except:
+                    continue
         except Exception as e:
             log.error("Could not initilize motor controller, trying again in 2 seconds...")
             log.error(f"{e}")
