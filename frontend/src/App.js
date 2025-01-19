@@ -7,10 +7,10 @@ const DEAD_ZONE = 0.1;
 const socket = io('http://shoppy.local:5000', {
   transports: ['websocket'],
   cors: {
-    origin: 'http://shoppy.local:3000',
+    origin: ['http://shoppy.local:3000', 'http://192.168.15.18:3000'],
     methods: ["GET", "POST"]
   },
-  reconnectionAttempts: 5,
+  reconnection: true,
   reconnectionDelay: 1000
 });
 
@@ -27,6 +27,10 @@ function App() {
   const sliderColor = useColorModeValue("blue.500", "blue.200");
 
   useEffect(() => {
+    socket.on('ping', () => {
+        console.log("Recv'd ping")
+        socket.emit('pong');  
+    })
     socket.on('connect', () => {
       console.log('Connected to WebSocket server');
       setIsConnected(true);
@@ -67,6 +71,7 @@ function App() {
       socket.off('control_response');
       socket.off('gradual_stop');
       socket.off('connection_status');
+      socket.off('ping');
     };
   }, []);
 
